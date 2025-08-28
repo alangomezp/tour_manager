@@ -20,7 +20,7 @@ class AuthController extends Controller
             'password' => ['required', Password::min(8)->mixedCase()]
         ]);
 
-        $user = User::where('email', $request->input('email'))->first();
+        $user = User::whereEmail($request->input('email'))->first();
 
         if ($user && Hash::check($request->input('password'), $user->password)) {
             Auth::login($user);

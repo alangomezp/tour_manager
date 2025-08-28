@@ -9,7 +9,12 @@ class Abilities
     public static function getAbilitiesByRole(string $role)
     {
         return match ($role) {
-            Roles::ADMIN->value => ['*'],
+            Roles::ADMIN->value => [
+                'user:create',
+                'user:list',
+                'user:update',
+                'user:delete'
+            ],
             Roles::EMPLOYEE->value => ['rsvp:manage'],
             Roles::CLIENT->value => ['tour:view', 'rsvp:create'],
             default => []

@@ -46,7 +46,12 @@ class AuthTest extends TestCase
 
         $token = PersonalAccessToken::where('tokenable_id', $user->id)->first();
         $this->assertNotNull($token);
-        $this->assertEquals($token->abilities, ['*']);
+        $this->assertEquals($token->abilities, [
+            'user:create',
+            'user:list',
+            'user:update',
+            'user:delete'
+        ]);
     }
 
     #[Test]

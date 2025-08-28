@@ -23,7 +23,12 @@ class AbilitiesTest extends TestCase
         $abilities = Abilities::getAbilitiesByRole($role);
         //Assert
         $this->assertNotNull($abilities);
-        $this->assertEquals(['*'], $abilities);
+        $this->assertEquals([
+            'user:create',
+            'user:list',
+            'user:update',
+            'user:delete'
+        ], $abilities);
     }
 
     #[Test]

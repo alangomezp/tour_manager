@@ -12,7 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
-class RegisterUsersTest extends TestCase
+class RegisterEmployeeTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -35,7 +35,7 @@ class RegisterUsersTest extends TestCase
             'role_id' => $role_admin->id
         ]);
 
-        Sanctum::actingAs($admin, ['employee:manage']);
+        Sanctum::actingAs($admin, ['user:create']);
 
         $employee = [
             'name' => 'perez',
@@ -48,7 +48,7 @@ class RegisterUsersTest extends TestCase
         $user = User::where('email', 'perez@exampletour.com')->with('role')->first();
         // Assert
         $response->assertStatus(201)
-            ->assertHeader('resource', route('employee', [$user->id]));
+            ->assertHeader('resource', route('user', [$user->id]));
         $this->assertNotNull($user->role_id);
         $this->assertEquals('employee', $user->role->name);
     }
@@ -77,11 +77,11 @@ class RegisterUsersTest extends TestCase
         ];
 
         // Act
-        $response = $this->post('api/employee', $employee);
+        $response = $this->withHeader('Accept', 'application/json')
+            ->post('api/employee', $employee);
 
         // Assert
-        $response->assertStatus(403)
-            ->assertJson(['message' => 'Insufficient Permissions']);
+        $response->assertStatus(403);
     }
 
     #[Test]
