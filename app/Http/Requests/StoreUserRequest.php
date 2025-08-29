@@ -13,14 +13,6 @@ use Illuminate\Contracts\Validation\Validator;
 class StoreUserRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(Request $request): bool
-    {
-        return $request->path() == 'api/client' || Auth::user()->tokenCan('user:create');
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>

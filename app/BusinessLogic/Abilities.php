@@ -13,10 +13,14 @@ class Abilities
                 'user:create',
                 'user:list',
                 'user:update',
-                'user:delete'
+                'user:delete',
+                'tour:list',
+                'tour:create',
+                'tour:update',
+                'tour:delete'
             ],
-            Roles::EMPLOYEE->value => ['rsvp:manage'],
-            Roles::CLIENT->value => ['tour:view', 'rsvp:create'],
+            Roles::EMPLOYEE->value => ['tour:list', 'rsvp:manage'],
+            Roles::CLIENT->value => ['tour:list', 'rsvp:create'],
             default => []
         };
     }

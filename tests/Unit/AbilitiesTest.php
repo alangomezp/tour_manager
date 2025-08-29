@@ -27,7 +27,11 @@ class AbilitiesTest extends TestCase
             'user:create',
             'user:list',
             'user:update',
-            'user:delete'
+            'user:delete',
+            'tour:list',
+            'tour:create',
+            'tour:update',
+            'tour:delete'
         ], $abilities);
     }
 
@@ -41,7 +45,7 @@ class AbilitiesTest extends TestCase
         $abilities = Abilities::getAbilitiesByRole($role);
         //Assert
         $this->assertNotNull($abilities);
-        $this->assertEquals(['rsvp:manage'], $abilities);
+        $this->assertEquals(['tour:list', 'rsvp:manage'], $abilities);
     }
 
     #[Test]
@@ -54,6 +58,6 @@ class AbilitiesTest extends TestCase
         $abilities = Abilities::getAbilitiesByRole($role);
         //Assert
         $this->assertNotNull($abilities);
-        $this->assertEquals(['tour:view', 'rsvp:create'], $abilities);
+        $this->assertEquals(['tour:list', 'rsvp:create'], $abilities);
     }
 }

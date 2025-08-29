@@ -2,38 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\BusinessLogic\Abilities;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use App\BusinessLogic\Abilities;
+use App\Http\Requests\AuthUserRequest;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
-
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
+    public function login(AuthUserRequest $request)
     {
-        request()->validate([
-            'email' => 'required|email',
-            'password' => ['required', Password::min(8)->mixedCase()]
-        ]);
+        $user = User::whereEmail($request->safe()['email'])->first();
 
-        $user = User::whereEmail($request->input('email'))->first();
+        if (!$user)
+            return response()->json(['message' => 'Email or password is incorrect'], HttpResponse::HTTP_BAD_REQUEST);
 
-        if ($user && Hash::check($request->input('password'), $user->password)) {
+        if (Hash::check($request->safe()['password'], $user->password)) {
             Auth::login($user);
             $role = $user->role->name;
             $abilities = Abilities::getAbilitiesByRole($role);
-            $token = $request->user()->createToken($user->email, $abilities);
+            $token = Auth::user()->createToken($user->email, $abilities);
             return response()->json([
                 'token' => $token->plainTextToken
-            ]);
+            ], HttpResponse::HTTP_OK);
         }
-
-        return response()->json([
-            'message' => 'Incorrect email o password'
-        ], Response::HTTP_BAD_REQUEST);
     }
 }

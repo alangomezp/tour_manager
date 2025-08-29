@@ -3,15 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Roles;
-use App\Models\Role;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rules\Password;
 use App\BusinessLogic\services\definition\IUserService;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
+use Illuminate\Support\Facades\Gate;
 use Str;
 
 class UserController extends Controller
@@ -20,17 +17,15 @@ class UserController extends Controller
 
     public function index()
     {
-        if (!Auth::user()->tokenCan('user:list')) {
-            return response()->json([
-                'message' => 'Insufficient Permissions'
-            ], Response::HTTP_FORBIDDEN);
-        }
+        Gate::authorize('viewAny', User::class);
 
         return UserResource::collection(User::with('role')->get());
     }
 
     public function store(StoreUserRequest $request)
     {
+        Gate::authorize('create', User::class);
+
         $route = request()->uri()->path();
 
         $role = Str::contains($route, 'employee')
@@ -41,39 +36,25 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        if (Auth::id() !== $user->id && !Auth::user()->tokenCan('user:list')) {
-            return response()->json([
-                'message' => 'You\'re trying to retrieve information not related to you or you have insufficent permissons'
-            ], Response::HTTP_FORBIDDEN);
-        }
+        Gate::authorize('view', [User::class, $user]);
 
         $user->load('role');
 
         return new UserResource($user);
     }
 
-    public function update(User $user)
+    public function update(User $user, UpdateUserRequest $request)
     {
-        if (!Auth::user()->tokenCan('user:update')) {
-            return response()->json([
-                'message' => 'Insufficient Permissions'
-            ], Response::HTTP_FORBIDDEN);
-        }
+        Gate::authorize('update', User::class);
 
-        $user->update([
-            'name' => request('name')
-        ]);
+        $user->update($request->safe()->toArray());
 
         return response()->noContent(204, ['resource' => route('user', [$user->id])]);
     }
 
     public function destroy(User $user)
     {
-        if (!Auth::user()->tokenCan('user:delete')) {
-            return response()->json([
-                'message' => 'Insufficient Permissions'
-            ], Response::HTTP_FORBIDDEN);
-        }
+        Gate::authorize('delete', User::class);
 
         $user->delete();
 

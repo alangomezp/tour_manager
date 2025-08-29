@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\TourController;
 use App\Http\Controllers\UserController;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -19,4 +20,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/employee', [UserController::class, 'store']);
     Route::patch('/user/{user}', [UserController::class, 'update']);
     Route::delete('/user/{user}', [UserController::class, 'destroy']);
+
+    Route::get('/tour', [TourController::class, 'index']);
+    Route::get('/tour/{tour}', [TourController::class, 'show'])->name('tour');
+    Route::post('/tour', [TourController::class, 'store']);
+    Route::patch('/tour/{tour}', [TourController::class, 'update']);
+    Route::delete('/tour/{tour}', [TourController::class, 'destroy']);
 });

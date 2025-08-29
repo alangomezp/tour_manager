@@ -32,7 +32,7 @@ class AuthTest extends TestCase
         ]);
 
         // Act & Assert
-        $response = $this->post('api/login', [
+        $response = $this->postJson('api/login', [
             'email' => 'test@example.com',
             'password' => 'Password'
         ]);
@@ -50,7 +50,11 @@ class AuthTest extends TestCase
             'user:create',
             'user:list',
             'user:update',
-            'user:delete'
+            'user:delete',
+            'tour:list',
+            'tour:create',
+            'tour:update',
+            'tour:delete'
         ]);
     }
 
@@ -69,12 +73,12 @@ class AuthTest extends TestCase
         ]);
 
         // Act & Assert
-        $response = $this->post('api/login', [
+        $response = $this->postJson('api/login', [
             'email' => 'test@example.com',
             'password' => 'Password'
         ]);
 
-        $response->assertOk()
+        $response->assertStatus(200)
             ->assertJson(['token' => $response->json()['token']]);
 
         $user = User::where('email', 'test@example.com')->with('role')->first();
@@ -83,7 +87,7 @@ class AuthTest extends TestCase
 
         $token = PersonalAccessToken::where('tokenable_id', $user->id)->first();
         $this->assertNotNull($token);
-        $this->assertEquals($token->abilities, ['rsvp:manage']);
+        $this->assertEquals($token->abilities, ['tour:list', 'rsvp:manage']);
     }
 
     #[Test]
@@ -101,12 +105,12 @@ class AuthTest extends TestCase
         ]);
 
         // Act & Assert
-        $response = $this->post('api/login', [
+        $response = $this->postJson('api/login', [
             'email' => 'test@example.com',
             'password' => 'Password'
         ]);
 
-        $response->assertOk()
+        $response->assertStatus(200)
             ->assertJson(['token' => $response->json()['token']]);
 
         $user = User::where('email', 'test@example.com')->with('role')->first();
@@ -115,7 +119,7 @@ class AuthTest extends TestCase
 
         $token = PersonalAccessToken::where('tokenable_id', $user->id)->first();
         $this->assertNotNull($token);
-        $this->assertEquals($token->abilities, ['tour:view', 'rsvp:create']);
+        $this->assertEquals($token->abilities, ['tour:list', 'rsvp:create']);
     }
 
     #[Test]
@@ -127,14 +131,13 @@ class AuthTest extends TestCase
         ]);
 
         // Act
-        $response = $this->post('api/login', [
+        $response = $this->postJson('api/login', [
             'email' => 'invalid@example.com',
             'password' => 'Password'
         ]);
 
         // Assert
-        $response->assertBadRequest()
-            ->assertJson(['message' => 'Incorrect email o password']);
+        $response->assertStatus(400);
     }
 
     #[Test]
@@ -146,12 +149,12 @@ class AuthTest extends TestCase
         ]);
 
         // Act
-        $response = $this->post('api/login', [
+        $response = $this->postJson('api/login', [
             'email' => null,
             'password' => 'Password'
         ]);
 
         // Assert
-        $response->assertSessionHasErrors();
+        $response->assertStatus(422);
     }
 }

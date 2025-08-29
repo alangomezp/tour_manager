@@ -44,7 +44,7 @@ class RegisterEmployeeTest extends TestCase
         ];
 
         // Act
-        $response = $this->post('api/employee', $employee);
+        $response = $this->postJson('api/employee', $employee);
         $user = User::where('email', 'perez@exampletour.com')->with('role')->first();
         // Assert
         $response->assertStatus(201)
@@ -77,8 +77,7 @@ class RegisterEmployeeTest extends TestCase
         ];
 
         // Act
-        $response = $this->withHeader('Accept', 'application/json')
-            ->post('api/employee', $employee);
+        $response = $this->postJson('api/employee', $employee);
 
         // Assert
         $response->assertStatus(403);
@@ -104,9 +103,9 @@ class RegisterEmployeeTest extends TestCase
         ];
 
         // Act
-        $response = $this->post('api/employee', $employee);
+        $response = $this->postJson('api/employee', $employee);
 
         // Assert
-        $response->assertSessionHasErrors();
+        $response->assertStatus(422);
     }
 }

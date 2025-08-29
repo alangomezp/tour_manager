@@ -35,7 +35,7 @@ class RegisterClientTest extends TestCase
             'name' => 'client'
         ]);
         //Act
-        $response = $this->post('api/client', $this->client_request);
+        $response = $this->postJson('api/client', $this->client_request);
         $user = User::where('email', $this->client_request['email'])->with('role')->first();
 
         // Assert
@@ -55,8 +55,7 @@ class RegisterClientTest extends TestCase
 
         $this->client_request['password'] = '1234';
         //Act
-        $response = $this->withHeader('Accept', 'application/json')
-            ->post('api/client', $this->client_request);
+        $response = $this->postJson('api/client', $this->client_request);
 
         // Assert
         $response->assertStatus(422);
@@ -72,8 +71,7 @@ class RegisterClientTest extends TestCase
         $this->client_request['password'] = null;
 
         //Act
-        $response = $this->withHeader('Accept', 'application/json')
-            ->post('api/client', $this->client_request);
+        $response = $this->postJson('api/client', $this->client_request);
 
         // Assert
         $response->assertStatus(422);
@@ -89,8 +87,7 @@ class RegisterClientTest extends TestCase
         User::factory()->create($this->client_request);
 
         //Act
-        $response = $this->withHeader('Accept', 'application/json')
-            ->post('api/client', $this->client_request);
+        $response = $this->postJson('api/client', $this->client_request);
 
         // Assert
         $response->assertStatus(422);
@@ -106,8 +103,7 @@ class RegisterClientTest extends TestCase
         $this->client_request['email'] = 'jose.gmail.com';
 
         //Act
-        $response = $this->withHeader('Accept', 'application/json')
-            ->post('api/client', $this->client_request);
+        $response = $this->postJson('api/client', $this->client_request);
 
         // Assert
         $response->assertStatus(422);
@@ -123,8 +119,7 @@ class RegisterClientTest extends TestCase
         $this->client_request['email'] = null;
 
         //Act
-        $response = $this->withHeader('Accept', 'application/json')
-            ->post('api/client', $this->client_request);
+        $response = $this->postJson('api/client', $this->client_request);
 
         // Assert
         $response->assertStatus(422);

@@ -34,7 +34,7 @@ class UserManageTest extends TestCase
         //Arrange
         $admin = User::factory()->create();
         $role = Role::factory()->create([
-            'name' => 'client'
+            'name' => 'admin'
         ]);
         User::factory(4)->create([
             'role_id' => $role->id
@@ -42,7 +42,7 @@ class UserManageTest extends TestCase
         Sanctum::actingAs($admin, ['user:list']);
 
         //Act
-        $response = $this->get('api/user');
+        $response = $this->getJson('api/user');
 
         //Assert
         $response->assertStatus(200)
@@ -63,7 +63,7 @@ class UserManageTest extends TestCase
         Sanctum::actingAs($admin, ['user:list']);
 
         //Act
-        $response = $this->get("api/user/{$another_user->id}");
+        $response = $this->getJson("api/user/{$another_user->id}");
 
         //Assert
         $response->assertStatus(200)
@@ -82,8 +82,9 @@ class UserManageTest extends TestCase
         Sanctum::actingAs($admin, ['user:update']);
 
         //Act
-        $response = $this->patch("api/user/{$outdated_user->id}", [
-            'name' => 'Alan'
+        $response = $this->patchJson("api/user/{$outdated_user->id}", [
+            'name' => 'Alan',
+            'password' => 'Password'
         ]);
         $updated_user = User::find($outdated_user->id);
 
@@ -102,7 +103,7 @@ class UserManageTest extends TestCase
         Sanctum::actingAs($admin, ['user:delete']);
 
         //Act
-        $response = $this->delete("api/user/{$another_user->id}");
+        $response = $this->deleteJson("api/user/{$another_user->id}");
         $user_deleted = User::withTrashed()->find($another_user->id);
 
         //Assert
@@ -113,6 +114,26 @@ class UserManageTest extends TestCase
     //Other Users
 
     #[Test]
+    public function as_normal_user_i_cant_list_all_users()
+    {
+        //Arrange
+        $user = User::factory()->create();
+        $role = Role::factory()->create([
+            'name' => 'client'
+        ]);
+        User::factory(4)->create([
+            'role_id' => $role->id
+        ]);
+        Sanctum::actingAs($user);
+
+        //Act
+        $response = $this->getJson('api/user');
+
+        //Assert
+        $response->assertStatus(403);
+    }
+
+    #[Test]
     public function as_an_user_i_can_retrieve_my_personal_data()
     {
         //Arrange
@@ -120,7 +141,7 @@ class UserManageTest extends TestCase
         Sanctum::actingAs($user);
 
         //Act
-        $response = $this->get("api/user/{$user->id}");
+        $response = $this->getJson("api/user/{$user->id}");
 
         //Assert
         $response->assertStatus(200)
@@ -139,13 +160,10 @@ class UserManageTest extends TestCase
         Sanctum::actingAs($user);
 
         //Act
-        $response = $this->get("api/user/{$another_user->id}");
+        $response = $this->getJson("api/user/{$another_user->id}");
 
         //Assert
-        $response->assertStatus(403)
-            ->assertJson(
-                fn(AssertableJson $json) =>
-                $json->has('message')
-            );
+        $response->assertStatus(403);
+        $this->assertTrue($response['message'] === 'This action is unauthorized.');
     }
 }
